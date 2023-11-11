@@ -13,6 +13,7 @@ export class TaskService {
     this.mongooseUtil = new MongooseUtil();
     this.model = TaskModel;
   }
+
   //The Model
   private model: Model<ITask>;
   mongooseUtil: MongooseUtil;
@@ -42,18 +43,12 @@ export class TaskService {
     const tasks = [];
     const tasksPending = await this.model.find({ status: TaskStatus.PENDING });
     for (const task of tasksPending) {
-      // Simulate asynchronous execution
-      tasks.push(this.executeTask(task));
+      // Simulate asynchronous execution and task execution
+      console.log(`Executing task ${task.id} - ${task.name}`);
+      task.status = TaskStatus.COMPLETE;
+      tasks.push(task.save());
     }
     await Promise.all(tasks);
-  }
-
-  /********************** Private Methods **********************/
-  private async executeTask(task: ITask): Promise<void> {
-    // Simulate task execution
-    console.log(`Executing task ${task.id} - ${task.name}`);
-    task.status = TaskStatus.COMPLETE;
-    await task.save();
   }
 }
 //End of Service
