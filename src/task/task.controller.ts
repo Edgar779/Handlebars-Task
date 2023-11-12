@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Query } from "@nestjs/common";
+import { Body, Controller, Post, Get, Query, Render } from "@nestjs/common";
 import { ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { Public } from "src/util";
 import { CreateTaskDTO, GetTaskQuery, TaskDTO } from "./dto";
@@ -23,7 +23,7 @@ export class TaskController {
   @Get()
   @Public()
   @ApiOkResponse({ type: [TaskDTO] })
-  async getAll(@Query() dto: GetTaskQuery): Promise<TaskDTO[]> {
+  async getAll(@Query() dto: GetTaskQuery): Promise<string> {
     const tasks = await this.taskService.getQueue(dto);
     return tasks;
   }

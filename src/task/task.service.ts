@@ -6,10 +6,14 @@ import { MongooseUtil } from "../util";
 import { TaskSanitizer } from "./task.sanitizer";
 import { TaskStatus } from "./task.constants";
 import { TaskModel } from "./task.model";
+import { ConverterService } from "src/converter/converter.service";
 
 @Injectable()
 export class TaskService {
-  constructor(private readonly sanitizer: TaskSanitizer) {
+  constructor(
+    private readonly sanitizer: TaskSanitizer,
+    private readonly converterService: ConverterService
+  ) {
     this.mongooseUtil = new MongooseUtil();
     this.model = TaskModel;
   }
@@ -23,7 +27,7 @@ export class TaskService {
   async addTask(dto: CreateTaskDTO): Promise<TaskDTO> {
     let task: ITask = new this.model({
       name: dto.name,
-      parameters: dto.parameter,
+      parameter: dto.parameter,
       status: TaskStatus.PENDING,
     });
     await task.save();
@@ -31,11 +35,12 @@ export class TaskService {
   }
 
   /** get queue status */
-  async getQueue(dto: GetTaskQuery): Promise<TaskDTO[]> {
+  async getQueue(dto: GetTaskQuery): Promise<string> {
     const query: FilterQuery<ITask> = {};
     if (dto.status) query.status = dto.status;
     const tasks = await this.model.find(query);
-    return this.sanitizer.sanitizeMany(tasks);
+    const htmlContent = await this.converterService.taskData(tasks);
+    return htmlContent;
   }
 
   /** process the queue */
